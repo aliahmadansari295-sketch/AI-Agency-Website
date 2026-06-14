@@ -3,104 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { Play, Sparkles, Youtube, Plus, Trash2, ArrowRight, Video, CheckCircle, Info, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, ArrowRight, Video } from 'lucide-react';
 import { VideoDemo } from '../types';
 import { INITIAL_VIDEO_DEMOS } from '../data/demos';
 
 export default function VideoDemos() {
-  const [demos, setDemos] = useState<VideoDemo[]>([]);
+  const [demos] = useState<VideoDemo[]>(INITIAL_VIDEO_DEMOS);
   const [activeDemo, setActiveDemo] = useState<VideoDemo | null>(null);
-  const [newUrl, setNewUrl] = useState('');
-  const [newTitle, setNewTitle] = useState('');
-  const [newDesc, setNewDesc] = useState('');
-  const [newCategory, setNewCategory] = useState<'E-Commerce' | 'Real Estate' | 'Customer Support' | 'Lead Generation'>('Customer Support');
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-
-  // Initialize and load custom user links from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('ali_agency_demos');
-    if (stored) {
-      try {
-        setDemos(JSON.parse(stored));
-      } catch (err) {
-        setDemos(INITIAL_VIDEO_DEMOS);
-      }
-    } else {
-      setDemos(INITIAL_VIDEO_DEMOS);
-    }
-  }, []);
-
-  // Save to localStorage helper
-  const saveDemos = (updated: VideoDemo[]) => {
-    setDemos(updated);
-    localStorage.setItem('ali_agency_demos', JSON.stringify(updated));
-  };
-
-  // Extract YouTube ID from standard formats
-  const extractYoutubeId = (url: string): string => {
-    if (!url) return '';
-    
-    // Check if it's already just the 11-char ID
-    if (url.length === 11 && !url.includes('/') && !url.includes('.')) {
-      return url;
-    }
-    
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : '';
-  };
-
-  const handleAddDemo = (e: React.FormEvent) => {
-    e.preventDefault();
-    const ytId = extractYoutubeId(newUrl);
-    
-    if (!ytId) {
-      alert("Please enter a valid YouTube video URL or Video ID (e.g., https://youtu.be/... or watch?v=...)");
-      return;
-    }
-
-    const customDemo: VideoDemo = {
-      id: `custom-${Date.now()}`,
-      title: newTitle.trim() || 'Custom WhatsApp Bot Demo',
-      description: newDesc.trim() || 'Custom WhatsApp chatbot automation workflow running live.',
-      youtubeUrl: newUrl.trim(),
-      youtubeId: ytId,
-      duration: '3 mins approx',
-      category: newCategory
-    };
-
-    const updated = [customDemo, ...demos];
-    saveDemos(updated);
-    setActiveDemo(customDemo); // Auto play newly added demo!
-    
-    // Reset form states
-    setNewTitle('');
-    setNewDesc('');
-    setNewUrl('');
-    setShowAddForm(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 4000);
-  };
-
-  const handleDeleteDemo = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Avoid triggering card click
-    
-    // Safeguard presets: if it's the last one, don't delete to avoid empty state, or allow reset
-    const updated = demos.filter(d => d.id !== id);
-    saveDemos(updated);
-    if (activeDemo?.id === id) {
-      setActiveDemo(null);
-    }
-  };
-
-  const handleResetDefaults = () => {
-    if (window.confirm("Restore back to original default agency videos?")) {
-      saveDemos(INITIAL_VIDEO_DEMOS);
-      setActiveDemo(null);
-    }
-  };
 
   return (
     <div className="w-full bg-slate-50 py-20 px-4 scroll-mt-10" id="video-demos">
@@ -118,118 +28,6 @@ export default function VideoDemos() {
           <p className="text-slate-600 text-sm md:text-base leading-relaxed">
             Take a look at how our AI systems perform in typical chat workflows. Watch live captures of conversational screens across different sectors.
           </p>
-        </div>
-
-        {/* Dynamic Video Customizer / Admin tool */}
-        <div className="mb-10 p-6 bg-white border border-slate-200 rounded-2xl shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h3 className="text-lg font-display font-bold text-slate-900 flex items-center gap-2">
-                <Youtube className="w-5 h-5 text-rose-600" />
-                Ali's Unlisted Video Manager
-              </h3>
-              <p className="text-slate-500 text-xs">
-                Have you created an unlisted YouTube video demonstrating your latest bot? Add it here to showcase it directly to prospective clients!
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap gap-2.5">
-              <button
-                id="toggle-add-demo-form"
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="bg-whatsapp-teal hover:bg-whatsapp-dark text-white font-semibold text-xs px-4 py-2.5 rounded-lg transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                {showAddForm ? 'Close Manager' : 'Add Unlisted Demo'}
-              </button>
-              
-              <button
-                id="reset-presets-btn"
-                onClick={handleResetDefaults}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 cursor-pointer"
-              >
-                Reset Presets
-              </button>
-            </div>
-          </div>
-
-          {saveSuccess && (
-            <div className="mt-4 p-3 bg-emerald-50 border border-emerald-250 text-emerald-800 rounded-lg text-xs flex items-center gap-2 animate-fade-in">
-              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Great job, Ali! Your custom unlisted YouTube demo has been loaded successfully. It is now featured at the top of your list.</span>
-            </div>
-          )}
-
-          {/* Collapsible Form */}
-          {showAddForm && (
-            <form onSubmit={handleAddDemo} className="mt-6 pt-6 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5 animate-slide-down">
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="yt-url" className="block text-xs font-semibold text-slate-700 mb-1.5">YouTube Video URL or ID *</label>
-                  <input
-                    id="yt-url"
-                    type="text"
-                    required
-                    value={newUrl}
-                    onChange={(e) => setNewUrl(e.target.value)}
-                    placeholder="https://www.youtube.com/watch?v=your-unlisted-id"
-                    className="w-full text-xs p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-whatsapp-teal/50 bg-slate-50"
-                  />
-                  <span className="text-[10px] text-slate-400 mt-1 block">Supports standard watch links, mobile shorts, and share links.</span>
-                </div>
-
-                <div>
-                  <label htmlFor="yt-category" className="block text-xs font-semibold text-slate-700 mb-1.5">Industry Category</label>
-                  <select
-                    id="yt-category"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value as any)}
-                    className="w-full text-xs p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-whatsapp-teal/50 bg-slate-50"
-                  >
-                    <option value="Customer Support">Customer Support Helpdesk</option>
-                    <option value="Lead Generation">Lead Generation & Qualifying</option>
-                    <option value="E-Commerce">E-Commerce & Checkout</option>
-                    <option value="Real Estate">Real Estate Automation</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-4 flex flex-col justify-between">
-                <div>
-                  <label htmlFor="yt-title" className="block text-xs font-semibold text-slate-700 mb-1.5">Demo Title *</label>
-                  <input
-                    id="yt-title"
-                    type="text"
-                    required
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="e.g., E-Commerce Chatbot for Fashion Brands"
-                    className="w-full text-xs p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-whatsapp-teal/50 bg-slate-50"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="yt-desc" className="block text-xs font-semibold text-slate-700 mb-1.5">Demo Description</label>
-                  <textarea
-                    id="yt-desc"
-                    rows={2}
-                    value={newDesc}
-                    onChange={(e) => setNewDesc(e.target.value)}
-                    placeholder="Briefly describe the automation trigger, API integrations shown, or dashboard sync..."
-                    className="w-full text-xs p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-whatsapp-teal/50 bg-slate-50"
-                  />
-                </div>
-
-                <button
-                  id="submit-demo-btn"
-                  type="submit"
-                  className="w-full bg-whatsapp-teal hover:bg-whatsapp-dark text-white font-bold text-xs py-3 rounded-lg transition-all shadow hover:shadow-md cursor-pointer"
-                >
-                  Save and Feature Bot Demo
-                </button>
-              </div>
-            </form>
-          )}
         </div>
 
         {/* Video Theatre Stage (Active Player) */}
@@ -333,18 +131,6 @@ export default function VideoDemos() {
                       {isCurrentlyPlaying ? 'Now Watching' : 'Launch Demo'}
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </span>
-                    
-                    {/* Delete button if user custom video */}
-                    {demo.id.toString().startsWith('custom-') && (
-                      <button
-                        id={`delete-demo-${demo.id}`}
-                        onClick={(e) => handleDeleteDemo(demo.id, e)}
-                        className="text-slate-400 hover:text-rose-600 p-1.5 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                        title="Delete custom demo"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>

@@ -37,11 +37,13 @@ export default function WhatsAppSimulator() {
 
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto scroll to bottom
+  // Auto scroll to bottom inside the chat container locally
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [messages, isTyping]);
 
   const getBotResponse = (input: string): { response: string, options?: string[] } => {
@@ -881,7 +883,7 @@ export default function WhatsAppSimulator() {
                 </div>
 
                 {/* Messages Body Scroll log */}
-                <div className="flex-1 bg-[#ECE5DD] p-3 overflow-y-auto space-y-3 relative flex flex-col" style={{ backgroundImage: 'radial-gradient(ellipse at center, rgba(18,140,126,0.06) 0%, rgba(229,221,213,0.3) 100%)' }}>
+                <div ref={chatContainerRef} className="flex-1 bg-[#ECE5DD] p-3 overflow-y-auto space-y-3 relative flex flex-col" style={{ backgroundImage: 'radial-gradient(ellipse at center, rgba(18,140,126,0.06) 0%, rgba(229,221,213,0.3) 100%)' }}>
                   <div className="self-center bg-white/80 backdrop-blur-sm shadow-sm border border-slate-350 text-slate-500 text-[9px] px-2 py-0.5 rounded font-medium tracking-wide uppercase leading-none select-none">
                     Today
                   </div>
@@ -951,8 +953,6 @@ export default function WhatsAppSimulator() {
                       <span className="w-1.5 h-1.5 bg-slate-450 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                     </div>
                   )}
-
-                  <div ref={chatEndRef} />
                 </div>
 
                 {/* Input Console */}
