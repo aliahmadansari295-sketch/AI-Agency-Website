@@ -1,0 +1,6 @@
+{
+  "name": "Ali AI Agency",
+  "description": "Premium AI WhatsApp Automation Agency founded by Ali Ahmad Ansari. Watch live bot demos, book strategic video consultation calls, and preview interactive automation simulations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
