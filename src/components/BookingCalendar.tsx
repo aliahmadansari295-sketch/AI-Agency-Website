@@ -92,7 +92,7 @@ export default function BookingCalendar() {
     }
 
     const newBooking: Booking = {
-      id: `book-${Date.now()}`,
+      id: `book-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       clientName: clientName.trim(),
       clientEmail: clientEmail.trim(),
       companyName: companyName.trim() || 'Freelance / Direct Client',
