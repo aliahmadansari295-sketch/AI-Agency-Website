@@ -1,16 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Smartphone, Sparkles, Smile, Phone, Video, MoreVertical, Paperclip } from 'lucide-react';
 
-// Inline Type Definition so you don't need external imports
-export interface ChatMessage {
-  id: string;
-  sender: 'bot' | 'user';
-  text: string;
-  timestamp: string;
-  type: 'text' | 'options';
-  options?: string[];
-}
-
 export default function WhatsAppSimulator() {
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -23,20 +13,20 @@ export default function WhatsAppSimulator() {
     'How it Boosts Sales'
   ];
 
-  // Initial messages state
-  const [messages, setMessages] = useState<ChatMessage[]>([
+  // Initial messages state conforming to interactive WhatsApp layout
+  const [messages, setMessages] = useState([
     {
-      id: `bot-${Date.now()}-1`,
+      id: 'init-1',
       sender: 'bot',
       text: "👋 Hi there! Welcome to *Ali AI Agency*. I'm Ali Ahmad Ansari, and my team builds smart automated systems so you can focus on growing your business while we handle the busywork.",
-      timestamp: getCurrentTime(),
+      timestamp: '09:00 AM',
       type: 'text'
     },
     {
-      id: `bot-${Date.now()}-2`,
+      id: 'init-2',
       sender: 'bot',
       text: "Explore how my AI can streamline your sales, capture leads, and provide 24/7 client care right here. What would you like to explore today?",
-      timestamp: getCurrentTime(),
+      timestamp: '09:01 AM',
       type: 'options',
       options: initialOptions
     }
@@ -45,10 +35,10 @@ export default function WhatsAppSimulator() {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
-  // Auto scroll logic (block: 'nearest' prevents the whole webpage from jumping)
+  // Auto scroll using element.scrollIntoView block 'nearest' on updates
   const scrollToNewestMessage = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -59,7 +49,7 @@ export default function WhatsAppSimulator() {
     scrollToNewestMessage();
   }, [messages, isTyping]);
 
-  const getBotResponse = (option: string): string => {
+  const getBotResponse = (option) => {
     const cleanOption = option.toLowerCase().trim();
 
     if (cleanOption.includes('service') || cleanOption.includes('models') || cleanOption.includes('browse')) {
@@ -81,12 +71,12 @@ export default function WhatsAppSimulator() {
     return "💡 *Received!* I am keeping tabs on your interest. Our founder *Ali Ahmad Ansari* can build absolute precision engines for your unique requirements.\n\nUse the interactive menu buttons to explore our workflow live.";
   };
 
-  const handleSendMessage = (textToSend: string, sourceOption?: string) => {
+  const handleSendMessage = (textToSend, sourceOption) => {
     if (!textToSend.trim()) return;
 
-    // 1. Append user selection
-    const userMsg: ChatMessage = {
-      id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+    // Append user selection
+    const userMsg = {
+      id: "user-" + Date.now() + "-" + Math.random().toString(36).substring(2, 9),
       sender: 'user',
       text: textToSend,
       timestamp: getCurrentTime(),
@@ -97,20 +87,21 @@ export default function WhatsAppSimulator() {
     setInputText('');
     setIsTyping(true);
 
-    // 2. Simulate typing and send bot reply
+    // Simulate real WhatsApp Business network latency
     setTimeout(() => {
       const responseText = getBotResponse(textToSend);
       
-      // Calculate remaining options (The Waterfall Loop)
+      // Filter out the selected menu option so remaining ones are presented in bot's next reply
       const selected = sourceOption || textToSend;
       const remainingOptions = initialOptions.filter(
         (opt) => opt.toLowerCase().trim() !== selected.toLowerCase().trim()
       );
 
+      // If typed message didn't match any option structure, show all options
       const activeOptions = remainingOptions.length < 4 ? remainingOptions : initialOptions;
 
-      const botMsg: ChatMessage = {
-        id: `bot-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      const botMsg = {
+        id: "bot-" + Date.now() + "-" + Math.random().toString(36).substring(2, 9),
         sender: 'bot',
         text: responseText,
         timestamp: getCurrentTime(),
@@ -123,14 +114,14 @@ export default function WhatsAppSimulator() {
     }, 1100);
   };
 
-  // Parses WhatsApp-style asterisk formatting securely
-  const renderMessageTextWithFormatting = (text: string) => {
+  // Parses WhatsApp-style asterisk formatting (*bold text*) and double asterisk (**bold text**) securely
+  const renderMessageTextWithFormatting = (text) => {
     return text.split('\n').map((line, idx) => {
       const normalizedLine = line.replace(/\*\*/g, '*');
       const parts = normalizedLine.split(/\*([^*]+)\*/g);
       
       return (
-        <p key={idx} className="mb-1 last:mb-0 text-slate-900 leading-relaxed font-normal break-words">
+        <p key={idx} className="mb-1 last:mb-0 text-slate-900 leading-relaxed font-normal">
           {parts.map((p, pIdx) => {
             if (pIdx % 2 === 1) {
               return (
@@ -146,7 +137,7 @@ export default function WhatsAppSimulator() {
     });
   };
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -154,11 +145,11 @@ export default function WhatsAppSimulator() {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-16 px-4" id="whatsapp-simulator">
+    <div className="w-full max-w-6xl mx-auto py-16 px-4 font-sans" id="whatsapp-simulator">
       
       {/* Decorative Card Container with Elegant Border */}
       <div className="bg-slate-900 rounded-3xl border border-slate-800 p-6 md:p-10 text-white shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-whatsapp-teal/10 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl -z-10"></div>
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-slate-800 mb-10 text-left">
@@ -168,7 +159,7 @@ export default function WhatsAppSimulator() {
               WhatsApp Conversational Agency Suite
             </div>
             
-            <h2 className="text-2xl md:text-4xl font-black tracking-tight text-white leading-tight">
+            <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
               Interactive WhatsApp Simulator
             </h2>
             <p className="text-slate-400 text-xs md:text-sm max-w-2xl">
@@ -178,7 +169,7 @@ export default function WhatsAppSimulator() {
         </div>
 
         {/* Live Smartphone Interactive Sandbox */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-fade-in">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
           {/* Left Side Content Column */}
           <div className="lg:col-span-5 space-y-6 text-left">
@@ -188,24 +179,24 @@ export default function WhatsAppSimulator() {
             </h3>
             
             <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
-              Most web agencies just list static paragraphs. **Ali AI Agency** gives you a full-fidelity sandbox to test. Click on any of the interactive buttons directly inside the chat response bubbles to experience simulated sequences:
+              Most web agencies just list static paragraphs. <strong>Ali AI Agency</strong> gives you a full-fidelity sandbox to test. Click on any of the interactive buttons directly inside the chat response bubbles to experience simulated sequences:
             </p>
 
             <div className="space-y-4 text-xs">
-              <div className="p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+              <div className="p-3.5 bg-slate-950 border border-slate-850 rounded-xl space-y-1">
                 <span className="font-extrabold text-[#25D366] block">📊 Service Models</span>
                 <span className="text-slate-400">Instantly browse our full suite of support helpdesks, interactive commerce catalogs, and qualifying algorithms.</span>
               </div>
 
-              <div className="p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+              <div className="p-3.5 bg-slate-950 border border-slate-850 rounded-xl space-y-1">
                 <span className="font-extrabold text-[#25D366] block">💰 Estimation & ROI</span>
                 <span className="text-slate-400">Discover custom pricing frameworks and calculate how much you save on 24/7 staff support.</span>
               </div>
 
-              <div className="p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-1">
+              <div className="p-3.5 bg-slate-950 border border-slate-850 rounded-xl space-y-1">
                 <span className="font-extrabold text-[#25D366] block">🤖 Interactive Floating Widget</span>
-                <span className="text-[#94a3b8] leading-normal">
-                  Notice the <strong className="text-[#25D366]">Floating Green WhatsApp Bubble</strong> on the bottom-right of your screen? That is our custom lead capture flow running live! Go ahead and tap it to test client conversion.
+                <span className="text-slate-400 leading-normal">
+                  Notice the <strong>Floating Green WhatsApp Bubble</strong> on the bottom-right of your screen? That is our custom lead capture flow running live! Go ahead and tap it to test client conversion.
                 </span>
               </div>
             </div>
@@ -213,8 +204,9 @@ export default function WhatsAppSimulator() {
             {/* CTA to Book Call */}
             <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center gap-4">
               <button
+                id="tab-interactive-book-btn"
                 onClick={() => scrollToSection('book-call')}
-                className="bg-[#25D366] hover:bg-[#1ebd5b] text-slate-950 font-bold text-xs uppercase px-5 py-3 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow"
+                className="bg-[#25D366] hover:bg-[#25D366]/90 text-slate-950 font-bold text-xs uppercase px-5 py-3 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow"
               >
                 <Video className="w-4 h-4" />
                 Reserve Call with Ali
@@ -235,12 +227,12 @@ export default function WhatsAppSimulator() {
               {/* Chat Header */}
               <div className="bg-[#075E54] text-white pt-5 pb-2 px-3 relative flex items-center justify-between shadow-md shrink-0 select-none">
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="relative w-8 h-8 rounded-full bg-slate-600/50 flex items-center justify-center text-white font-medium text-[11px] border-2 border-[#25D366] overflow-hidden">
+                  <div className="relative w-8 h-8 rounded-full bg-slate-655/50 flex items-center justify-center text-white font-medium text-[11px] border-2 border-[#25D366] overflow-hidden">
                     AA
                     <div className="absolute bottom-0 right-0 w-2 h-2 bg-[#25D366] rounded-full border border-[#075E54]"></div>
                   </div>
-                  <div>
-                    <h4 className="font-black text-[11px] leading-none">Ali AI Assistant</h4>
+                  <div className="text-left">
+                    <h4 className="font-bold text-[11px] leading-none">Ali AI Assistant</h4>
                     <span className="text-[9px] text-[#25D366] font-medium leading-none">online</span>
                   </div>
                 </div>
@@ -248,17 +240,17 @@ export default function WhatsAppSimulator() {
                 <div className="flex items-center gap-2.5 text-slate-200">
                   <Video className="w-3.5 h-3.5 cursor-pointer hover:text-white" />
                   <Phone className="w-3 h-3 cursor-pointer hover:text-white" />
-                  <MoreVertical className="w-3.5 h-3.5 cursor-pointer hover:text-white" />
+                  <MoreVertical className="w-3.5 h-3.5 focus:outline-none" />
                 </div>
               </div>
 
               {/* Chat Messages Body Screen */}
               <div 
                 ref={chatContainerRef} 
-                className="flex-1 bg-[#ECE5DD] p-3 overflow-y-auto space-y-3 relative flex flex-col custom-scrollbar" 
+                className="flex-1 bg-[#ECE5DD] p-3 overflow-y-auto space-y-3 relative flex flex-col" 
                 style={{ backgroundImage: 'radial-gradient(ellipse at center, rgba(18,140,126,0.06) 0%, rgba(229,221,213,0.3) 100%)' }}
               >
-                <div className="self-center bg-white/80 backdrop-blur-sm shadow-sm border border-slate-200 text-slate-500 text-[9px] px-2 py-0.5 rounded font-medium tracking-wide uppercase leading-none select-none">
+                <div className="self-center bg-white/80 backdrop-blur-sm shadow-sm border border-slate-300 text-slate-500 text-[9px] px-2 py-0.5 rounded font-medium tracking-wide uppercase leading-none select-none">
                   Today
                 </div>
 
@@ -275,13 +267,13 @@ export default function WhatsAppSimulator() {
                           : 'bg-white self-start rounded-tl-none text-[11px]'
                       }`}
                     >
-                      {/* Message Text Area */}
+                      {/* For bot with options, allow perfect edge layout to look like WhatsApp Interactive templates */}
                       <div className={showOptionsInBubble ? 'pt-2 px-2.5 pb-1' : ''}>
-                        <div className="whitespace-pre-line leading-relaxed break-words">
+                        <div className="whitespace-pre-line leading-relaxed">
                           {renderMessageTextWithFormatting(msg.text)}
                         </div>
 
-                        {/* Timestamp */}
+                        {/* Text timestamp */}
                         <div className="text-right flex items-center justify-end gap-0.5 mt-1 text-[8px] text-slate-400">
                           <span>{msg.timestamp}</span>
                           {msg.sender === 'user' && (
@@ -290,15 +282,16 @@ export default function WhatsAppSimulator() {
                         </div>
                       </div>
 
-                      {/* Attached Quick-Reply Buttons (WhatsApp Meta Logic) */}
+                      {/* Attached Quick-Reply Buttons inside the same bubble list */}
                       {showOptionsInBubble && (
                         <div className="border-t border-slate-100 mt-2 flex flex-col divide-y divide-slate-100/90 select-none">
-                          {msg.options!.map((opt, oIdx) => {
+                          {msg.options.map((opt, oIdx) => {
                             const isActive = isLastMessage;
 
                             return (
                               <button
                                 key={oIdx}
+                                id={`bubble-opt-${msg.id}-${oIdx}`}
                                 disabled={!isActive || isTyping}
                                 onClick={() => handleSendMessage(opt, opt)}
                                 className={`w-full py-2.5 px-3 text-center text-[10px] font-bold flex items-center justify-center gap-1.5 transition-colors focus:outline-none ${
@@ -319,10 +312,10 @@ export default function WhatsAppSimulator() {
 
                 {/* Animated Typing Bar */}
                 {isTyping && (
-                  <div className="bg-white text-slate-800 self-start rounded-xl rounded-tl-none px-2.5 py-2.5 text-xs shadow-sm flex items-center gap-1 max-w-[50px] animate-pulse">
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
-                    <span className="w-1.5 h-1.5 bg-[#128C7E] rounded-full"></span>
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
+                  <div className="bg-white text-slate-800 self-start rounded-xl rounded-tl-none px-2.5 py-2.5 text-xs shadow-sm flex items-center gap-1 max-w-[50px] animate-fade-in">
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-[#128C7E] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                   </div>
                 )}
 
@@ -330,9 +323,9 @@ export default function WhatsAppSimulator() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Chat Input Console */}
+              {/* Chat Input Console (Self-contained backup input) */}
               <div className="p-1.5 bg-slate-50 border-t border-slate-200 flex items-center gap-2 shrink-0 select-none">
-                <button className="p-1 text-slate-400 hover:text-slate-600 rounded-full shrink-0 focus:outline-none">
+                <button id="smiles-ico" className="p-1 text-slate-400 hover:text-slate-600 rounded-full shrink-0 focus:outline-none">
                   <Smile className="w-4 h-4" />
                 </button>
                 
@@ -340,32 +333,34 @@ export default function WhatsAppSimulator() {
                   onSubmit={(e) => {
                     e.preventDefault();
                     if (inputText.trim()) {
-                      handleSendMessage(inputText);
+                      handleSendMessage(inputText, inputText);
                     }
                   }}
                   className="flex-1 flex gap-1 items-center"
                 >
                   <div className="flex-1 bg-white border border-slate-200 rounded-full px-2.5 py-1.5 flex items-center gap-1">
                     <input
+                      id="phone-chat-input-field"
                       type="text"
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       placeholder="Or type standard response..."
-                      className="flex-1 text-[11px] focus:outline-none text-slate-800 bg-transparent w-full"
+                      className="flex-1 text-[11px] focus:outline-none text-slate-800 bg-transparent"
                     />
                     <Paperclip className="w-3 h-3 text-slate-400" />
                   </div>
 
                   <button
+                    id="phone-send-arrow-btn"
                     type="submit"
                     disabled={!inputText.trim()}
                     className={`p-1.5 rounded-full flex items-center justify-center shrink-0 focus:outline-none ${
                       inputText.trim()
-                        ? 'bg-[#128C7E] text-white cursor-pointer hover:bg-[#0e7165]'
+                        ? 'bg-[#128C7E] text-white cursor-pointer'
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                   >
-                    <Send className="w-3 h-3 ml-0.5" />
+                    <Send className="w-3 h-3" />
                   </button>
                 </form>
               </div>
