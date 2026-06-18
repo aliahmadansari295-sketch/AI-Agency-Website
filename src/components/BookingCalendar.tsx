@@ -12,7 +12,7 @@ export default function BookingCalendar() {
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
-  const [companyName, setCompanyName] = useState('');
+  const [companyNameInput, setCompanyNameInput] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
   const [bookingType, setBookingType] = useState<'strategic_call' | 'whatsapp_setup_audit'>('strategic_call');
@@ -84,40 +84,107 @@ export default function BookingCalendar() {
     }
   }, []);
 
-  const handleBookMeeting = (e: React.FormEvent) => {
+  const handleBookMeeting = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDate || !selectedTime) {
       setStatusMsg("Please select a date and an available time slot first.");
       return;
     }
 
-    const newBooking: Booking = {
-      id: `book-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      clientName: clientName.trim(),
-      clientEmail: clientEmail.trim(),
-      companyName: companyName.trim() || 'Freelance / Direct Client',
-      date: selectedDate,
-      timeSlot: selectedTime,
-      notes: notes.trim(),
-      bookingType: bookingType,
-      status: 'confirmed',
-      createdAt: new Date().toISOString()
-    };
+    setStatusMsg("Submitting consultation request...");
 
-    const updated = [newBooking, ...bookings];
-    setBookings(updated);
-    localStorage.setItem('ali_agency_bookings', JSON.stringify(updated));
-    setLastBooking(newBooking);
-    setShowSuccessModal(true);
-    setStatusMsg('');
+    const selectedBusinessDay = selectedDate;
+    const chooseAvailableTime = selectedTime;
+    const yourName = clientName.trim();
+    const emailAddress = clientEmail.trim();
+    const companyName = companyNameInput.trim() || 'Freelance / Direct Client';
+    const whatsAppNumber = phone.trim() || 'N/A';
+    const selectConsultationFocus = bookingType === 'strategic_call' ? 'Automation Roadmap' : 'WhatsApp API Setup Audit';
+    const automationGoalsAndCRM = notes.trim() || 'N/A';
 
-    // Clear form inputs
-    setClientName('');
-    setClientEmail('');
-    setCompanyName('');
-    setPhone('');
-    setNotes('');
-    setSelectedTime('');
+    try {
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const endpoint = `${BACKEND_URL}/api/book-consultation`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          selectedBusinessDay,
+          chooseAvailableTime,
+          yourName,
+          emailAddress,
+          companyName,
+          whatsAppNumber,
+          selectConsultationFocus,
+          automationGoalsAndCRM
+        })
+      });
+
+      if (response.ok) {
+        const newBooking: Booking = {
+          id: `book-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          clientName: yourName,
+          clientEmail: emailAddress,
+          companyName: companyName,
+          date: selectedBusinessDay,
+          timeSlot: chooseAvailableTime,
+          notes: automationGoalsAndCRM,
+          bookingType: bookingType,
+          status: 'confirmed',
+          createdAt: new Date().toISOString()
+        };
+
+        const updated = [newBooking, ...bookings];
+        setBookings(updated);
+        localStorage.setItem('ali_agency_bookings', JSON.stringify(updated));
+        setLastBooking(newBooking);
+        setShowSuccessModal(true);
+        setStatusMsg('');
+
+        // Clear form inputs
+        setClientName('');
+        setClientEmail('');
+        setCompanyNameInput('');
+        setPhone('');
+        setNotes('');
+        setSelectedTime('');
+      } else {
+        setStatusMsg("Failed to confirm consultation with remote server.");
+      }
+    } catch (err: any) {
+      console.warn("API Server offline, running offline backup simulation...", err);
+      
+      const newBooking: Booking = {
+        id: `book-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+        clientName: yourName,
+        clientEmail: emailAddress,
+        companyName: companyName,
+        date: selectedBusinessDay,
+        timeSlot: chooseAvailableTime,
+        notes: automationGoalsAndCRM,
+        bookingType: bookingType,
+        status: 'confirmed',
+        createdAt: new Date().toISOString()
+      };
+
+      const updated = [newBooking, ...bookings];
+      setBookings(updated);
+      localStorage.setItem('ali_agency_bookings', JSON.stringify(updated));
+      setLastBooking(newBooking);
+      setShowSuccessModal(true);
+      setStatusMsg('Notice: Server is offline. Captured booking offline.');
+
+      // Clear form inputs
+      setClientName('');
+      setClientEmail('');
+      setCompanyNameInput('');
+      setPhone('');
+      setNotes('');
+      setSelectedTime('');
+    }
   };
 
   const handleCancelBooking = (id: string) => {
@@ -280,8 +347,8 @@ export default function BookingCalendar() {
                 <input
                   id="booking-company"
                   type="text"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
+                  value={companyNameInput}
+                  onChange={(e) => setCompanyNameInput(e.target.value)}
                   placeholder="e.g., Ansari Logistics"
                   className="w-full text-xs p-3.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-whatsapp-teal/50 bg-slate-50"
                 />
