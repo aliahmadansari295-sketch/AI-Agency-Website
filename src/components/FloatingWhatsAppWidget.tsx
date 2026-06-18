@@ -23,10 +23,12 @@ export default function FloatingWhatsAppWidget() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll inside widget
+  // Auto-scroll inside widget only when open to prevent window jumping
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isTyping, isOpen]);
 
   // Handle auto-greeting on launch/mount or when first opened
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function FloatingWhatsAppWidget() {
 
     const userText = inputText.trim();
     const newMsg: WidgetMessage = {
-      id: `user-${Date.now()}`,
+      id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       sender: 'user',
       text: userText,
       timestamp: getCurrentTime()
@@ -89,7 +91,7 @@ export default function FloatingWhatsAppWidget() {
       setTimeout(() => {
         setIsTyping(false);
         const pitchMsg: WidgetMessage = {
-          id: `bot-pitch-${Date.now()}`,
+          id: `bot-pitch-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
           sender: 'bot',
           text: "That's exactly what we do! We build 24/7 AI WhatsApp salesmen. To show you a personalized roadmap, could you please tell me your Name and your Business Industry?",
           timestamp: getCurrentTime()
@@ -108,7 +110,7 @@ export default function FloatingWhatsAppWidget() {
         const currentData = localStorage.getItem('ali_agency_bookings') || '[]';
         const parseList = JSON.parse(currentData);
         parseList.push({
-          id: `lead-${Date.now()}`,
+          id: `lead-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
           clientName: userText.substring(0, 40),
           clientEmail: 'captured-via-floater@widget.demo',
           companyName: 'WhatsApp Sandbox Lead',
@@ -130,7 +132,7 @@ export default function FloatingWhatsAppWidget() {
       setTimeout(() => {
         setIsTyping(false);
         const captureMsg: WidgetMessage = {
-          id: `bot-capture-${Date.now()}`,
+          id: `bot-capture-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
           sender: 'bot',
           text: "Awesome! I've saved your details securely in our database. 🎯 Our founder will reach out to you shortly.\n\nSee how easy it was to capture your lead without a boring web form? We can build this exact flow for YOUR target audience!",
           timestamp: getCurrentTime()

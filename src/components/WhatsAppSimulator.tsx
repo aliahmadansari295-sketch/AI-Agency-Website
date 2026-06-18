@@ -43,15 +43,23 @@ export default function WhatsAppSimulator() {
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
-  // Auto-scroll logic utilizing block: 'nearest' to ensure smooth focus adjustment
+  // Auto-scroll logic utilizing scoped container scrolling to prevent browser window shifts
   const scrollToNewestMessage = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   };
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     scrollToNewestMessage();
   }, [messages, isTyping]);
 
