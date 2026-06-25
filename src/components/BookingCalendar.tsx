@@ -38,9 +38,8 @@ export default function BookingCalendar() {
     const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
-    // Set base date relative to current metadata time (June 14, 2026 is a Sunday)
-    // Let's create slots starting from Monday, June 15, 2026.
-    const baseDate = new Date(2026, 5, 14); // June 14, 2026
+    // Set base date dynamically to the current real date
+    const baseDate = new Date();
     
     let added = 0;
     let daysToSearch = 1;
@@ -56,7 +55,7 @@ export default function BookingCalendar() {
           dayName: weekdays[dayOfWeek].substring(0, 3),
           dayNum: nextDate.getDate(),
           monthName: months[nextDate.getMonth()],
-          fullString: `${weekdays[dayOfWeek]}, ${months[nextDate.getMonth()]} ${nextDate.getDate()}, 2026`
+          fullString: `${weekdays[dayOfWeek]}, ${months[nextDate.getMonth()]} ${nextDate.getDate()}, ${nextDate.getFullYear()}`
         });
         added++;
       }
