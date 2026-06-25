@@ -24,7 +24,7 @@ export interface VideoDemo {
   youtubeId: string; // The ID extracted from the URL for iframe rendering
   duration: string;
   thumbnailUrl?: string;
-  category: 'E-Commerce' | 'Real Estate' | 'Customer Support' | 'Lead Generation';
+  category: 'E-Commerce' | 'Real Estate' | 'Customer Support' | 'Lead Generation' | 'Live Demo';
 }
 
 export interface ChatMessage {

@@ -8,30 +8,21 @@ import { VideoDemo } from '../types';
 export const INITIAL_VIDEO_DEMOS: VideoDemo[] = [
   {
     id: 'demo-1',
-    title: 'AI Customer Service & FAQ WhatsApp Bot',
-    description: 'See how the bot handles complex customer queries, FAQs, and files complaint tickets 24/7 without human intervention.',
-    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Placeholder - Rick Astley or other safe YouTube URLs, but let\'s use standard chatbot videos
-    youtubeId: 'A36Zsc91wWc', // Real educational video explaining AI WhatsApp Bot setup
-    duration: '5 mins 20s',
-    category: 'Customer Support'
-  },
-  {
-    id: 'demo-2',
-    title: 'Automated Lead Qualification & Scheduling Bot',
-    description: 'Watch the bot capture customer details, verify contact details, and automatically schedule high-value consultation calls.',
-    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    youtubeId: 'qjA9DkR008g', // Real chatbot demo
-    duration: '4 mins 45s',
+    title: 'How to Turn WhatsApp into an Auto-Lead Machine',
+    description: 'See how Ali AI Agency constructs high-performance interactive conversational flows that automatically qualify incoming leads, capture client contact details, and schedule strategy sessions on autopilot 24/7.',
+    youtubeUrl: 'https://www.youtube.com/shorts/mY2dG6HY_FM',
+    youtubeId: 'mY2dG6HY_FM',
+    duration: '1 min',
     category: 'Lead Generation'
   },
   {
-    id: 'demo-3',
-    title: 'E-Commerce Interactive Catalog & Checkout Bot',
-    description: 'A full shopping experience inside WhatsApp! Users can browse catalogs, add items to bags, and pay securely via payment links.',
-    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    youtubeId: 'V9m6o67C19c', // Real sandbox demo of WhatsApp commerce flows
-    duration: '6 mins 12s',
-    category: 'E-Commerce'
+    id: 'demo-2',
+    title: 'Live Demo',
+    description: 'Watch a direct live screen recording demonstrating how our custom-crafted WhatsApp automated agents answer real client inquiries, extract custom goals, and handle client care interactively.',
+    youtubeUrl: 'https://www.youtube.com/watch?v=6gwogqLkP4A',
+    youtubeId: '6gwogqLkP4A',
+    duration: '2 mins',
+    category: 'Live Demo'
   }
 ];
 

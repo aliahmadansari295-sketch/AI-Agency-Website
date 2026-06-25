@@ -64,7 +64,7 @@ export default function VideoDemos() {
         )}
 
         {/* Video Catalog Demos Directory Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className={`grid gap-6 ${demos.length === 1 ? 'grid-cols-1 max-w-lg mx-auto' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
           {demos.map((demo) => {
             const isCurrentlyPlaying = activeDemo?.id === demo.id;
             return (
